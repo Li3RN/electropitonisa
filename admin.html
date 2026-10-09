@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Sandra ⚡ ElectroPitonisa Admin</title>
+  <meta name="description" content="Panel de administración de Sandra para ElectroPitonisa. Gestión de la tirada semanal, reservas de clientas y asignación de lecturas.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2224%22>⚡</text></svg>">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- ==================== NAVEGACIÓN ==================== -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-logo">
+        <span class="brand-icon">⚡</span>
+        <div class="brand-text">
+          <span class="brand-title">ElectroPitonisa</span>
+          <span class="brand-subtitle">Panel de Control · Sandra</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Ver Web Pública ↗</a></li>
+        <li><a href="clientas.html" class="nav-link">Área Clientas ↗</a></li>
+        <li><button id="adminLogoutBtn" class="nav-btn" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;">Cerrar Panel</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ==================== CONTENIDO ==================== -->
+  <main class="container" style="padding-top: 30px; padding-bottom: 70px;">
+
+    <!-- 1. PANTALLA DE ACCESO / LOGIN PIN -->
+    <section id="adminAuthSection" class="auth-box">
+      <div class="auth-icon">🔑</div>
+      <h2 style="font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 8px; color: var(--gold-light);">Acceso de Sandra</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">Introduce tu clave PIN de administradora para gestionar la web:</p>
+
+      <form id="adminLoginForm">
+        <div class="form-group" style="text-align: left;">
+          <label for="adminPin">🔒 Clave PIN de Acceso</label>
+          <input type="password" id="adminPin" class="form-control" placeholder="Escribe tu clave aquí" required autofocus>
+        </div>
+
+        <button type="submit" class="btn-submit-booking" style="margin-top: 10px;">
+          ⚡ Desbloquear Panel de Control
+        </button>
+      </form>
+
+      <div style="margin-top: 18px; padding: 12px; background: rgba(245, 197, 66, 0.1); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--gold-light);">
+        💡 Clave inicial por defecto: <strong>sandra777</strong> (puedes cambiarla en <code>js/supabase-config.js</code>).
+      </div>
+    </section>
+
+    <!-- 2. DASHBOARD DE ADMINISTRACIÓN -->
+    <section id="adminDashboardSection" style="display: none;">
+      
+      <div style="margin-bottom: 24px; padding: 16px 20px; background: rgba(168, 85, 247, 0.12); border: 1px solid var(--border-mystic); border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 style="font-size: 1.35rem; color: var(--gold-light); font-family: var(--font-serif);">🔮 Portal de la Pitonisa</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Bienvenida Sandra. Gestiona la tirada semanal, citas y entregas para tus clientas.</p>
+        </div>
+        <div style="font-size: 0.82rem; color: var(--cyan-neon); background: rgba(56, 189, 248, 0.1); padding: 6px 14px; border-radius: var(--radius-full); border: 1px solid rgba(56, 189, 248, 0.3);">
+          ⚡ Sincronización Activa
+        </div>
+      </div>
+
+      <!-- PESTAÑAS (TABS) -->
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" data-tab="tabWeekly">
+          👁️ Tirada de la Semana
+        </button>
+        <button class="admin-tab-btn" data-tab="tabBookings">
+          📅 Citas & Reservas <span id="pendingCountBadge" style="background: var(--gold-primary); color: #000; font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; margin-left: 6px; font-weight:800;">0</span>
+        </button>
+        <button class="admin-tab-btn" data-tab="tabAssign">
+          💌 Asignar Tirada a Clienta
+        </button>
+      </div>
+
+      <!-- ==================== TAB 1: TIRADA DE LA SEMANA ==================== -->
+      <div id="tabWeekly" class="admin-panel-section active">
+        <div class="weekly-card" style="padding: 30px;">
+          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--gold-light); margin-bottom: 20px;">
+            ✏️ Editar Tirada de la Semana (Visible para todo el público)
+          </h3>
+
+          <form id="weeklyReadingForm">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="adminWeeklyTitle">🏷️ Título de la Tirada de la Semana</label>
+                <input type="text" id="adminWeeklyTitle" class="form-control" required>
+              </div>
+
+              <div class="form-group">
+                <label for="adminWeeklyVideo">🎥 Enlace al Vídeo de YouTube</label>
+                <input type="url" id="adminWeeklyVideo" class="form-control" placeholder="https://www.youtube.com/watch?v=..." required>
+                <small style="color: var(--text-dim); font-size: 0.78rem;">Pega el enlace normal de YouTube o el link corto (youtu.be).</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="adminWeeklyPhoto">🖼️ Ruta o URL de la Fotografía de las Cartas</label>
+              <input type="text" id="adminWeeklyPhoto" class="form-control" placeholder="img/tirada_semana.jpg o https://..." required>
+              <small style="color: var(--text-dim); font-size: 0.78rem;">Puedes usar una imagen local (ej: <code>img/tirada_semana.jpg</code>) o una URL pública de internet.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="adminWeeklyDesc">📝 Análisis e Interpretación Escrita</label>
+              <textarea id="adminWeeklyDesc" class="form-control" rows="4" required></textarea>
+            </div>
+
+            <!-- Vista Previa en Tiempo Real -->
+            <div style="margin: 24px 0; padding: 20px; background: rgba(10, 4, 20, 0.8); border: 1px dashed var(--border-mystic); border-radius: var(--radius-md);">
+              <h4 style="font-size: 0.95rem; color: var(--gold-primary); margin-bottom: 14px;">👁️ Vista Previa en Vivo:</h4>
+              <div class="weekly-grid">
+                <div class="photo-preview-wrap">
+                  <img id="adminPreviewImg" src="img/tirada_semana.jpg" alt="Preview foto">
+                </div>
+                <div class="video-container">
+                  <iframe id="adminPreviewIframe" src="" title="Preview vídeo"></iframe>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-submit-booking">
+              🔮 Guardar y Publicar en la Web
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 2: GESTIÓN DE CITAS ==================== -->
+      <div id="tabBookings" class="admin-panel-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--gold-light);">
+            📋 Solicitudes de Citas Recibidas
+          </h3>
+
+          <div style="display: flex; gap: 8px;">
+            <button onclick="filterBookings('todos')" class="nav-btn" style="padding: 6px 14px; font-size: 0.8rem;">Todas</button>
+            <button onclick="filterBookings('pendiente')" class="nav-btn" style="padding: 6px 14px; font-size: 0.8rem; border-color: var(--gold-primary); color: var(--gold-light);">Pendientes</button>
+            <button onclick="filterBookings('confirmada')" class="nav-btn" style="padding: 6px 14px; font-size: 0.8rem; border-color: var(--cyan-neon); color: var(--cyan-neon);">Confirmadas</button>
+            <button onclick="filterBookings('completada')" class="nav-btn" style="padding: 6px 14px; font-size: 0.8rem; border-color: #22c55e; color: #86efac;">Completadas</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="tarot-table">
+            <thead>
+              <tr>
+                <th>Clienta</th>
+                <th>Contacto</th>
+                <th>Servicio</th>
+                <th>Fecha Deseada</th>
+                <th>Pregunta / Notas</th>
+                <th>Estado Actual</th>
+                <th>Cambiar Estado</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsTableBody">
+              <!-- Rellenado dinámicamente por JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 3: ASIGNAR TIRADA A CLIENTA ==================== -->
+      <div id="tabAssign" class="admin-panel-section">
+        <div class="weekly-card" style="padding: 30px; margin-bottom: 40px;">
+          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--gold-light); margin-bottom: 12px;">
+            💌 Enviar Tirada Grabada a una Clienta
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
+            Cuando grabes el vídeo de una clienta y le tomes la foto a sus cartas, rellena este formulario con su email. 
+            Le aparecerá automáticamente en su sección privada <strong>"Mis Tiradas"</strong> al identificarse.
+          </p>
+
+          <form id="assignReadingForm">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="assignClientEmail">✉️ Email de la Clienta (Para su cuenta privada) *</label>
+                <input type="email" id="assignClientEmail" class="form-control" placeholder="clienta@gmail.com" required>
+              </div>
+
+              <div class="form-group">
+                <label for="assignTitle">🏷️ Título de la Tirada *</label>
+                <input type="text" id="assignTitle" class="form-control" placeholder="Ej. Tirada Amor & Nuevos Comienzos" required>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="assignSpread">🃏 Tipo o Disposición de Cartas</label>
+                <input type="text" id="assignSpread" class="form-control" placeholder="Ej. Cruz Celta de 10 cartas">
+              </div>
+
+              <div class="form-group">
+                <label for="assignDate">📅 Fecha de la Lectura</label>
+                <input type="date" id="assignDate" class="form-control">
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="assignVideoUrl">🎥 Enlace de YouTube (Vídeo Privado u Oculto) *</label>
+                <input type="url" id="assignVideoUrl" class="form-control" placeholder="https://youtu.be/..." required>
+                <small style="color: var(--text-dim); font-size: 0.78rem;">Sube el vídeo a YouTube como "Oculto" (Unlisted) para que solo ella lo vea.</small>
+              </div>
+
+              <div class="form-group">
+                <label for="assignImageUrl">🖼️ Foto de la Tirada (Ruta o URL) *</label>
+                <input type="text" id="assignImageUrl" class="form-control" placeholder="img/tirada_semana.jpg o enlace https://..." required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="assignNotes">💌 Mensaje e Interpretación Personalizada de Sandra *</label>
+              <textarea id="assignNotes" class="form-control" rows="4" placeholder="Escribe aquí tu resumen, consejos y mensaje cariñoso para la clienta..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit-booking">
+              🔮 Asignar y Publicar en su Rincón Privado
+            </button>
+          </form>
+        </div>
+
+        <h3 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--gold-light); margin-bottom: 16px;">
+          📜 Historial de Tiradas Asignadas a Clientas
+        </h3>
+        <div id="assignedReadingsList">
+          <!-- Rellenado por JS -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="js/supabase-config.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

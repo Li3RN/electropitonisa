@@ -1,0 +1,8 @@
+# Sistema y temporales
+.DS_Store
+Thumbs.db
+*.log
+
+# Entornos virtuales o temporales
+__pycache__/
+*.pyc

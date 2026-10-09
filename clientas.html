@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Rincón Místico 🔮 ElectroPitonisa Clientas</title>
+  <meta name="description" content="Área privada para clientas registradas de ElectroPitonisa. Consulta el historial de tus tiradas de tarot en vídeo y fotografía.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2224%22>🔮</text></svg>">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- ==================== NAVEGACIÓN ==================== -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-logo">
+        <span class="brand-icon">⚡</span>
+        <div class="brand-text">
+          <span class="brand-title">ElectroPitonisa</span>
+          <span class="brand-subtitle">Área de Clientas</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Inicio</a></li>
+        <li><a href="index.html#tirada-semana" class="nav-link">Tirada Semanal</a></li>
+        <li><a href="index.html#tarifas" class="nav-link">Tarifas</a></li>
+        <li><a href="admin.html" class="nav-btn primary">⚡ Panel Sandra</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
+  <main class="container" style="padding-top: 30px; padding-bottom: 60px;">
+    
+    <div class="page-header-box">
+      <span class="section-eyebrow">✦ Portal Exclusivo ✦</span>
+      <h1>Tu Santuario Personal</h1>
+      <p>Accede con tu email para revisar tus lecturas de cartas grabadas por Sandra.</p>
+    </div>
+
+    <!-- SECCIÓN DE IDENTIFICACIÓN / LOGIN -->
+    <section id="clientAuthSection" class="auth-box">
+      <div class="auth-icon">🔮</div>
+      <h2 style="font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 8px; color: var(--gold-light);">Acceso a tus Tiradas</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">Introduce el correo electrónico con el que solicitaste tu tirada:</p>
+
+      <form id="clientLoginForm">
+        <div class="form-group" style="text-align: left;">
+          <label for="clientLoginEmail">✉️ Tu Email Registrado</label>
+          <input type="email" id="clientLoginEmail" class="form-control" placeholder="ejemplo@gmail.com" required>
+        </div>
+
+        <button type="submit" class="btn-submit-booking" style="margin-top: 10px;">
+          ✨ Entrar a mis Tiradas
+        </button>
+      </form>
+
+      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 10px;">¿Quieres probar el acceso con una cuenta de demostración?</p>
+        <button type="button" id="demoClientBtn" class="nav-btn" style="width: 100%; justify-content: center;">
+          ⚡ Probar como Clienta Demo (clienta@test.com)
+        </button>
+      </div>
+    </section>
+
+    <!-- SECCIÓN DASHBOARD CLIENTA (OCULTA POR DEFECTO) -->
+    <section id="clientDashboardSection" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 14px; background: var(--bg-card); padding: 18px 24px; border-radius: var(--radius-md); border: 1px solid var(--border-mystic);">
+        <div>
+          <span style="font-size: 0.82rem; color: var(--gold-primary); text-transform: uppercase; font-weight:700;">Conectada como:</span>
+          <h2 id="clientEmailDisplay" style="font-size: 1.25rem; color: var(--text-main); font-weight: 600;">clienta@test.com</h2>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <a href="index.html#reserva" class="nav-btn primary">+ Pedir Nueva Tirada</a>
+          <button id="clientLogoutBtn" class="nav-btn" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;">Cerrar Sesión</button>
+        </div>
+      </div>
+
+      <!-- Listado dinámico de tiradas -->
+      <div id="clientReadingsList" class="readings-container">
+        <!-- Rellenado por JS -->
+      </div>
+
+      <!-- Estado Vacío -->
+      <div id="clientEmptyState" style="display: none; text-align: center; padding: 60px 20px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-mystic);">
+        <div style="font-size: 3rem; margin-bottom: 14px;">📭</div>
+        <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--gold-light); margin-bottom: 8px;">Aún no tienes tiradas registradas</h3>
+        <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 24px;">Sandra aún no ha subido una lectura personalizada para este email o tu sesión está en proceso de elaboración.</p>
+        <a href="index.html#reserva" class="btn-tarot gold">✨ Reservar Mi Primera Tirada</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== LIGHTBOX MODAL ==================== -->
+  <div id="imageLightbox" class="modal-overlay">
+    <button id="lightboxClose" class="modal-close-btn" aria-label="Cerrar">✕</button>
+    <img id="lightboxImg" src="" alt="Carta en grande" class="modal-content-img">
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/supabase-config.js"></script>
+  <script src="js/clientas.js"></script>
+</body>
+</html>
