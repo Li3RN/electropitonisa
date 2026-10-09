@@ -872,41 +872,31 @@ textarea.form-control {
    ============================================================================== */
 .about-grid {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 48px;
   align-items: center;
 }
 
-.about-gallery {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.gallery-card {
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 1px solid var(--border-mystic);
-  aspect-ratio: 4 / 5;
-  background: #0f0520;
-  box-shadow: var(--shadow-deep);
-}
-
-.gallery-card img {
+.about-single-image-wrap {
   width: 100%;
-  height: 100%;
+}
+
+.about-single-image-wrap .mystic-frame {
+  max-width: 100%;
+}
+
+.about-studio-img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  display: block;
+  transition: transform 0.5s ease;
+  cursor: pointer;
 }
 
-.gallery-card:hover img {
-  transform: scale(1.06);
-}
-
-.gallery-card.tall {
-  grid-column: 1 / 2;
-  grid-row: 1 / 3;
-  aspect-ratio: 9 / 16;
+.about-single-image-wrap:hover .about-studio-img {
+  transform: scale(1.02);
 }
 
 .about-text h3 {
