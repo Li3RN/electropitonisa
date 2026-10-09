@@ -877,26 +877,41 @@ textarea.form-control {
   align-items: center;
 }
 
-.about-single-image-wrap {
-  width: 100%;
+.about-duo-gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
 }
 
-.about-single-image-wrap .mystic-frame {
+.about-duo-card .mystic-frame {
   max-width: 100%;
+  height: 100%;
+  padding: 8px;
+  display: flex;
 }
 
-.about-studio-img {
+.about-duo-card .mystic-image-container {
   width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
+  height: 100%;
+}
+
+.about-duo-card img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
   transition: transform 0.5s ease;
   cursor: pointer;
+  aspect-ratio: 4 / 5;
 }
 
-.about-single-image-wrap:hover .about-studio-img {
-  transform: scale(1.02);
+.about-duo-card.studio img {
+  object-position: center;
+}
+
+.about-duo-card:hover img {
+  transform: scale(1.03);
 }
 
 .about-text h3 {
